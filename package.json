@@ -1,0 +1,35 @@
+{
+  "name": "kantus-front-client",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lint": "eslint .",
+    "typecheck": "nuxt typecheck",
+    "generate:api": "openapi-ts"
+  },
+  "dependencies": {
+    "@hey-api/client-axios": "^0.9.1",
+    "@iconify-json/lucide": "^1.2.100",
+    "@iconify-json/simple-icons": "^1.2.75",
+    "@nuxt/ui": "^4.6.0",
+    "@pinia/nuxt": "^0.11.3",
+    "@tanstack/vue-query": "^5.96.1",
+    "axios": "^1.14.0",
+    "nuxt": "^4.4.2",
+    "pinia": "^3.0.4",
+    "tailwindcss": "^4.2.2"
+  },
+  "devDependencies": {
+    "@hey-api/openapi-ts": "^0.94.5",
+    "@nuxt/eslint": "^1.15.2",
+    "@types/node": "^25.5.0",
+    "eslint": "^10.1.0",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.2.6"
+  },
+  "packageManager": "pnpm@10.33.0"
+}
