@@ -1,6 +1,6 @@
 <template>
   <main>
-    <TheHeader />
+    <RoomTheHeader />
     <UMain>
       <slot />
     </UMain>
