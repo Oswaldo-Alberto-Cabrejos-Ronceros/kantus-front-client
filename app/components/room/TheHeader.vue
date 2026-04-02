@@ -11,7 +11,7 @@
             alt="Logo"
             width="48"
           >
-          <h2 class="text-primary text-2xl ">Delivery</h2>
+          <h2 class="text-primary text-2xl ">Salón</h2>
         </div>
 
       </NuxtLink>
