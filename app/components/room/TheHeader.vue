@@ -4,7 +4,7 @@
 <template>
   <UHeader>
     <template #left>
-      <NuxtLink to="/">
+      <NuxtLink to="/salon">
         <div class="flex gap-4 items-center justify-center">
           <img
             src="/image/logo.jpg"
@@ -24,7 +24,7 @@
         size="md"
         color="primary"
         variant="ghost"
-        to="/pedido"
+        to="/salon/pedido"
       />
     </template>
   </UHeader>
