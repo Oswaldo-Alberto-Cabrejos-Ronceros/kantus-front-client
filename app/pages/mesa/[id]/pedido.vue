@@ -4,7 +4,7 @@
     <SharedOrderConfirmation
       v-if="orderStore.orderStatus === 'success' && orderStore.lastOrder"
       :order="orderStore.lastOrder"
-      back-to="/salon"
+      :back-to="`/mesa/${tableId}`"
       @new-order="orderStore.resetOrderStatus()"
     />
 
@@ -12,7 +12,7 @@
     <template v-else>
       <div class="checkout-header">
         <NuxtLink
-          to="/salon"
+          :to="`/mesa/${tableId}`"
           class="back-link"
         >
           <UIcon name="i-lucide-arrow-left" />
@@ -22,11 +22,14 @@
           Confirmar pedido
         </h1>
         <p class="checkout-subtitle">
-          Salón — {{ orderItems.length }} {{ orderItems.length === 1 ? 'producto' : 'productos' }}
+          <span
+            v-if="orderStore.activeTable"
+            class="mesa-badge"
+          >Mesa #{{ orderStore.activeTable.number }}</span>
+          — {{ orderItems.length }} {{ orderItems.length === 1 ? 'producto' : 'productos' }}
         </p>
       </div>
 
-      <!-- Stepper con 2 pasos para salón -->
       <UStepper
         v-model="currentStep"
         :items="stepperItems"
@@ -49,7 +52,7 @@
                 Agrega productos desde el menú
               </p>
               <UButton
-                to="/salon"
+                :to="`/mesa/${tableId}`"
                 label="Ir al menú"
                 color="primary"
                 icon="i-lucide-arrow-left"
@@ -57,7 +60,7 @@
             </div>
 
             <template v-else>
-              <!-- Mesa info si hay mesa -->
+              <!-- Mesa info -->
               <div
                 v-if="orderStore.activeTable"
                 class="mesa-info-card"
@@ -72,6 +75,10 @@
                   <p class="mesa-number">
                     Mesa #{{ orderStore.activeTable.number }}
                   </p>
+                </div>
+                <div class="mesa-capacity">
+                  <UIcon name="i-lucide-users" />
+                  <span>{{ orderStore.activeTable.capacity }} personas</span>
                 </div>
               </div>
 
@@ -133,7 +140,6 @@
               @submit="onPaymentSubmit"
             />
 
-            <!-- Error -->
             <div
               v-if="orderStore.orderStatus === 'error' && orderStore.orderError"
               class="order-error"
@@ -165,11 +171,20 @@ import { useMyOrderStore } from '~/stores/order'
 import type { Product } from '~/utils/types'
 
 definePageMeta({ layout: 'room' })
-useHead({ title: 'Kantus — Confirmar Pedido Salón' })
 
+const route = useRoute()
+const tableId = Number(route.params.id)
 const orderStore = useMyOrderStore()
-const { data: products } = await useFetch<Product[]>('/api/products')
 
+useHead({
+  title: computed(() =>
+    orderStore.activeTable
+      ? `Kantus — Pedido Mesa #${orderStore.activeTable.number}`
+      : 'Kantus — Confirmar Pedido'
+  )
+})
+
+const { data: products } = await useFetch<Product[]>('/api/products')
 const currentStep = ref(0)
 
 const stepperItems: StepperItem[] = [
@@ -205,7 +220,7 @@ async function onPaymentSubmit(paymentData: { paymentMethod: 'cash' | 'card' }) 
   await orderStore.submitOrder({
     type: 'room',
     paymentMethod: paymentData.paymentMethod,
-    tableId: orderStore.activeTable?.id
+    tableId: orderStore.activeTable?.id || tableId
   })
 }
 </script>
@@ -251,6 +266,26 @@ async function onPaymentSubmit(paymentData: { paymentMethod: 'cash' | 'card' }) 
   font-size: 0.875rem;
   color: #6b7280;
   margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.mesa-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.625rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 9999px;
+  color: #059669;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+:root.dark .mesa-badge {
+  color: #34d399;
 }
 
 .checkout-stepper {
@@ -264,7 +299,6 @@ async function onPaymentSubmit(paymentData: { paymentMethod: 'cash' | 'card' }) 
   gap: 0.75rem;
 }
 
-/* Empty */
 .empty-cart {
   display: flex;
   flex-direction: column;
@@ -301,7 +335,6 @@ async function onPaymentSubmit(paymentData: { paymentMethod: 'cash' | 'card' }) 
   color: #6b7280;
 }
 
-/* Mesa info */
 .mesa-info-card {
   display: flex;
   align-items: center;
@@ -342,7 +375,15 @@ async function onPaymentSubmit(paymentData: { paymentMethod: 'cash' | 'card' }) 
   color: #34d399;
 }
 
-/* Order items */
+.mesa-capacity {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: #6b7280;
+}
+
 .order-items {
   display: flex;
   flex-direction: column;
@@ -408,7 +449,6 @@ async function onPaymentSubmit(paymentData: { paymentMethod: 'cash' | 'card' }) 
   white-space: nowrap;
 }
 
-/* Summary */
 .order-summary-footer {
   padding: 1rem 1.25rem;
   background: rgba(0, 0, 0, 0.02);
@@ -445,7 +485,6 @@ async function onPaymentSubmit(paymentData: { paymentMethod: 'cash' | 'card' }) 
   border-color: rgba(255, 255, 255, 0.06);
 }
 
-/* Error */
 .order-error {
   display: flex;
   align-items: center;

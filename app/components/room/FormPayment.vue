@@ -1,5 +1,24 @@
 <template>
-  <div class="payment-form">
+  <div class="room-payment-form">
+    <!-- Info de mesa -->
+    <div
+      v-if="tableNumber"
+      class="table-info-card"
+    >
+      <div class="table-icon">
+        <UIcon name="i-lucide-utensils" />
+      </div>
+      <div class="table-details">
+        <span class="table-label">Mesa asignada</span>
+        <span class="table-number">Mesa #{{ tableNumber }}</span>
+      </div>
+      <div class="table-status">
+        <span class="status-dot" />
+        <span>Activa</span>
+      </div>
+    </div>
+
+    <!-- Total banner -->
     <div class="payment-total-banner">
       <span class="payment-total-label">Total a pagar</span>
       <span class="payment-total-amount">S/ {{ total.toFixed(2) }}</span>
@@ -32,7 +51,7 @@
       </div>
     </div>
 
-    <!-- Formulario de tarjeta (condicional) -->
+    <!-- Datos de tarjeta (condicional) -->
     <Transition name="card-form">
       <UForm
         v-if="selectedMethod === 'card'"
@@ -103,14 +122,13 @@
         />
       </UForm>
 
-      <!-- Pago en efectivo -->
       <div
         v-else-if="selectedMethod === 'cash'"
         class="cash-info"
       >
         <div class="cash-notice">
           <UIcon name="i-lucide-info" />
-          <p>El cobro se realizará al momento de la entrega. Por favor ten el monto exacto disponible.</p>
+          <p>El cobro se realizará directamente en tu mesa. El mozo se acercará a cobrarte.</p>
         </div>
         <UButton
           size="lg"
@@ -134,6 +152,7 @@ import type { PaymentMethod } from '~/utils/types'
 
 defineProps<{
   total: number
+  tableNumber?: number
   loading?: boolean
 }>()
 
@@ -160,10 +179,75 @@ function onCashSubmit() {
 </script>
 
 <style scoped>
-.payment-form {
+.room-payment-form {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+}
+
+/* Table info */
+.table-info-card {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1.125rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(5, 150, 105, 0.12));
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 0.75rem;
+}
+
+.table-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 0.5rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.table-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.table-label {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table-number {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+.table-status {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: #10b981;
+  font-weight: 500;
+}
+
+.status-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: #10b981;
+  border-radius: 50%;
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 /* Total banner */
@@ -246,7 +330,6 @@ function onCashSubmit() {
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
 }
 
-/* Card form */
 .card-form {
   display: flex;
   flex-direction: column;
@@ -260,7 +343,6 @@ function onCashSubmit() {
   gap: 0.75rem;
 }
 
-/* Cash info */
 .cash-info {
   display: flex;
   flex-direction: column;
@@ -281,13 +363,6 @@ function onCashSubmit() {
   line-height: 1.5;
 }
 
-.cash-notice .i-lucide-info {
-  flex-shrink: 0;
-  color: #3b82f6;
-  margin-top: 0.1rem;
-}
-
-/* Transitions */
 .card-form-enter-active,
 .card-form-leave-active {
   transition: all 0.25s ease;

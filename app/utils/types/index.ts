@@ -16,3 +16,50 @@ export interface ProductCard {
   id: number
   quantity: number
 }
+
+export interface Table {
+  id: number
+  number: number
+  status: 'free' | 'occupied' | 'reserved'
+  capacity: number
+}
+
+export interface OrderItem {
+  productId: number
+  name: string
+  price: number
+  quantity: number
+  imageUrl?: string
+}
+
+export type OrderType = 'delivery' | 'room'
+export type PaymentMethod = 'cash' | 'card'
+export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'ready' | 'delivered'
+
+export interface CreateOrderRequest {
+  type: OrderType
+  tableId?: number
+  customerName?: string
+  address?: string
+  phone?: string
+  paymentMethod: PaymentMethod
+  items: OrderItem[]
+  tip?: number
+}
+
+export interface Order {
+  id: string
+  type: OrderType
+  tableId?: number
+  tableNumber?: number
+  customerName?: string
+  address?: string
+  phone?: string
+  paymentMethod: PaymentMethod
+  items: OrderItem[]
+  subtotal: number
+  tip: number
+  total: number
+  status: OrderStatus
+  createdAt: string
+}

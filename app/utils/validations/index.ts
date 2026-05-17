@@ -1,10 +1,49 @@
 import { z } from 'zod'
 
-export const payerSchema = z.object({
+// Schema de pago (tarjeta)
+export const cardSchema = z.object({
   fullName: z.string().min(3, 'El nombre es obligatorio'),
-  cardNumber: z.string().length(16, 'El número de tarjeta debe tener 16 dígitos'),
-  cvv: z.string().min(3, 'El CVV debe tener al menos 3 dígitos').max(4, 'El CVV no puede tener más de 4 dígitos'),
-  expiryDate: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, 'La fecha debe tener el formato MM/AA')
+  cardNumber: z
+    .string()
+    .min(16, 'El número de tarjeta debe tener 16 dígitos')
+    .max(16, 'El número de tarjeta debe tener 16 dígitos')
+    .regex(/^\d+$/, 'Solo números'),
+  cvv: z.string().min(3, 'CVV inválido').max(4, 'CVV inválido').regex(/^\d+$/, 'Solo números'),
+  expiryDate: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, 'Formato MM/AA')
 })
 
-export type PayerRequest = z.infer<typeof payerSchema>
+// Schema de datos de delivery
+export const deliveryDataSchema = z.object({
+  customerName: z.string().min(3, 'El nombre es obligatorio'),
+  address: z.string().min(5, 'La dirección es obligatoria'),
+  phone: z
+    .string()
+    .min(9, 'El teléfono debe tener al menos 9 dígitos')
+    .regex(/^\d+$/, 'Solo números')
+})
+
+// Schema de pago para salón (método)
+export const paymentMethodSchema = z.object({
+  paymentMethod: z.enum(['cash', 'card'], { message: 'Selecciona un método de pago' })
+})
+
+// Schema completo de checkout delivery
+export const deliveryCheckoutSchema = deliveryDataSchema.merge(
+  z.object({
+    paymentMethod: z.enum(['cash', 'card'])
+  })
+)
+
+// Schema completo de checkout sala (solo método de pago)
+export const roomCheckoutSchema = z.object({
+  paymentMethod: z.enum(['cash', 'card'], { message: 'Selecciona un método de pago' })
+})
+
+// Legacy - mantener compatibilidad
+export const payerSchema = cardSchema
+
+export type CardRequest = z.infer<typeof cardSchema>
+export type PayerRequest = CardRequest
+export type DeliveryDataRequest = z.infer<typeof deliveryDataSchema>
+export type DeliveryCheckoutRequest = z.infer<typeof deliveryCheckoutSchema>
+export type RoomCheckoutRequest = z.infer<typeof roomCheckoutSchema>
