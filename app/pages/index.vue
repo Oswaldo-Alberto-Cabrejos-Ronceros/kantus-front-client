@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useMyOrderStore } from '~/stores/order'
-import type { Category, Product } from '~/utils/types'
 
 definePageMeta({ layout: 'default' })
 
 const orderStore = useMyOrderStore()
 
-const { data: categories } = await useFetch<Category[]>('/api/categories')
-const { data: products } = await useFetch<Product[]>('/api/products')
+const { fetchAll: fetchCategories } = useCategories()
+const { fetchAll: fetchProducts } = useProducts()
+
+const { data: categories } = await useAsyncData('categories', fetchCategories)
+const { data: products } = await useAsyncData('products', fetchProducts)
 
 const items = computed(() => {
   return categories.value?.map(category => ({
