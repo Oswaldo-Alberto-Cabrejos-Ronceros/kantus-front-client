@@ -168,7 +168,8 @@ definePageMeta({ layout: 'room' })
 useHead({ title: 'Kantus — Confirmar Pedido Salón' })
 
 const orderStore = useMyOrderStore()
-const { data: products } = await useFetch<Product[]>('/api/products')
+const { fetchAll: fetchProducts } = useProducts()
+const { data: products } = await useAsyncData('products', fetchProducts)
 
 const currentStep = ref(0)
 

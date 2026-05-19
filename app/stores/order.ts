@@ -111,10 +111,8 @@ export const useMyOrderStore = defineStore('myOrderStore', {
           }))
         }
 
-        const order = await $fetch<Order>('/api/orders', {
-          method: 'POST',
-          body: orderRequest
-        })
+        const { create: createOrder } = useOrders()
+        const order = await createOrder(orderRequest)
 
         this.lastOrder = order
         this.orderStatus = 'success'

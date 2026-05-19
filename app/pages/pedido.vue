@@ -172,7 +172,8 @@ definePageMeta({ layout: 'default' })
 useHead({ title: 'Kantus — Confirmar Pedido Delivery' })
 
 const orderStore = useMyOrderStore()
-const { data: products } = await useFetch<Product[]>('/api/products')
+const { fetchAll: fetchProducts } = useProducts()
+const { data: products } = await useAsyncData('products', fetchProducts)
 
 const currentStep = ref(0)
 const deliveryData = ref<DeliveryDataRequest | null>(null)

@@ -10,7 +10,14 @@ const orderStore = useMyOrderStore()
 const tableId = Number(route.params.id)
 
 // Fetch de la mesa — lanzará error 404 si no existe
-const { data: table, error: tableError } = await useFetch<Table>(`/api/tables/${tableId}`)
+const { fetchById } = useTables()
+const { data: table, error: tableError } = await useAsyncData(`table-${tableId}`, async () => {
+  const result = await fetchById(tableId)
+  if (!result) {
+    throw new Error('Table not found')
+  }
+  return result
+})
 
 // Si carga bien la mesa, la vinculamos al store
 if (table.value) {
@@ -23,8 +30,11 @@ useHead({
   )
 })
 
-const { data: categories } = await useFetch<Category[]>('/api/categories')
-const { data: products } = await useFetch<Product[]>('/api/products')
+const { fetchAll: fetchCategories } = useCategories()
+const { fetchAll: fetchProducts } = useProducts()
+
+const { data: categories } = await useAsyncData('categories', fetchCategories)
+const { data: products } = await useAsyncData('products', fetchProducts)
 
 const tabItems = computed(() => {
   return categories.value?.map(category => ({
