@@ -184,8 +184,8 @@ useHead({
   )
 })
 
-const { fetchAll: fetchProducts } = useProducts()
-const { data: products } = await useAsyncData('products', fetchProducts)
+const { useFindAllProducts } = useProducts()
+const { data: products } = useFindAllProducts()
 const currentStep = ref(0)
 
 const stepperItems: StepperItem[] = [

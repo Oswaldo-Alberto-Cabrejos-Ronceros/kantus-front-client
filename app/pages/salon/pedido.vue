@@ -168,8 +168,8 @@ definePageMeta({ layout: 'room' })
 useHead({ title: 'Kantus — Confirmar Pedido Salón' })
 
 const orderStore = useMyOrderStore()
-const { fetchAll: fetchProducts } = useProducts()
-const { data: products } = await useAsyncData('products', fetchProducts)
+const { useFindAllProducts } = useProducts()
+const { data: products } = useFindAllProducts()
 
 const currentStep = ref(0)
 

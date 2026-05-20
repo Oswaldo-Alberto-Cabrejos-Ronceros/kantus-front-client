@@ -6,11 +6,11 @@ definePageMeta({ layout: 'default' })
 
 const orderStore = useMyOrderStore()
 
-const { fetchAll: fetchCategories } = useCategories()
-const { fetchAll: fetchProducts } = useProducts()
+const { useFindAllCategories } = useCategories()
+const { useFindAllProducts } = useProducts()
 
-const { data: categories } = await useAsyncData('categories', fetchCategories)
-const { data: products } = await useAsyncData('products', fetchProducts)
+const { data: categories } = useFindAllCategories()
+const { data: products } = useFindAllProducts()
 
 const items = computed(() => {
   return categories.value?.map(category => ({

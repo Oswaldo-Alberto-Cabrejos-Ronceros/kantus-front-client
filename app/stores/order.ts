@@ -111,7 +111,8 @@ export const useMyOrderStore = defineStore('myOrderStore', {
           }))
         }
 
-        const { create: createOrder } = useOrders()
+        const { useCreateOrder } = useOrders()
+        const { mutateAsync: createOrder } = useCreateOrder()
         const order = await createOrder(orderRequest)
 
         this.lastOrder = order

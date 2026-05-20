@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 import { useMyOrderStore } from '~/stores/order'
 import type { Category, Product, Table } from '~/utils/types'
 
@@ -9,20 +9,16 @@ const route = useRoute()
 const orderStore = useMyOrderStore()
 const tableId = Number(route.params.id)
 
-// Fetch de la mesa — lanzará error 404 si no existe
-const { fetchById } = useTables()
-const { data: table, error: tableError } = await useAsyncData(`table-${tableId}`, async () => {
-  const result = await fetchById(tableId)
-  if (!result) {
-    throw new Error('Table not found')
-  }
-  return result
-})
+// Fetch de la mesa con TanStack Vue Query
+const { useFindOneTable } = useTables()
+const { data: table, error: tableError, isLoading } = useFindOneTable(tableId)
 
 // Si carga bien la mesa, la vinculamos al store
-if (table.value) {
-  orderStore.setTable(table.value)
-}
+watch(table, (newTable) => {
+  if (newTable) {
+    orderStore.setTable(newTable)
+  }
+}, { immediate: true })
 
 useHead({
   title: computed(() =>
@@ -30,11 +26,11 @@ useHead({
   )
 })
 
-const { fetchAll: fetchCategories } = useCategories()
-const { fetchAll: fetchProducts } = useProducts()
+const { useFindAllCategories } = useCategories()
+const { useFindAllProducts } = useProducts()
 
-const { data: categories } = await useAsyncData('categories', fetchCategories)
-const { data: products } = await useAsyncData('products', fetchProducts)
+const { data: categories } = useFindAllCategories()
+const { data: products } = useFindAllProducts()
 
 const tabItems = computed(() => {
   return categories.value?.map(category => ({
@@ -70,9 +66,15 @@ const tableStatusClass: Record<string, string> = {
 
 <template>
   <div>
+    <!-- Cargando -->
+    <div v-if="isLoading" class="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <UIcon name="i-lucide-loader-2" class="w-10 h-10 animate-spin text-primary" />
+      <span class="text-sm text-gray-500 dark:text-gray-400">Cargando mesa...</span>
+    </div>
+
     <!-- Mesa no encontrada -->
     <div
-      v-if="tableError || !table"
+      v-else-if="tableError || !table"
       class="error-page"
     >
       <div class="error-icon">

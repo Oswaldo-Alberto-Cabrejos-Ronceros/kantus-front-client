@@ -7,11 +7,11 @@ useHead({ title: 'Kantus — Pedido en Salón' })
 
 const orderStore = useMyOrderStore()
 
-const { fetchAll: fetchCategories } = useCategories()
-const { fetchAll: fetchProducts } = useProducts()
+const { useFindAllCategories } = useCategories()
+const { useFindAllProducts } = useProducts()
 
-const { data: categories } = await useAsyncData('salon-categories', fetchCategories)
-const { data: products } = await useAsyncData('salon-products', fetchProducts)
+const { data: categories } = useFindAllCategories()
+const { data: products } = useFindAllProducts()
 
 const items = computed(() => {
   return categories.value?.map(category => ({
