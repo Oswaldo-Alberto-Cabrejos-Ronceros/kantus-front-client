@@ -174,6 +174,7 @@ useHead({ title: 'Kantus — Confirmar Pedido Delivery' })
 const orderStore = useMyOrderStore()
 const { useFindAllProducts } = useProducts()
 const { data: products } = useFindAllProducts()
+const { submitOrder } = useOrders()
 
 const currentStep = ref(0)
 const deliveryData = ref<DeliveryDataRequest | null>(null)
@@ -220,7 +221,7 @@ function onDeliveryDataSubmit(data: DeliveryDataRequest) {
 async function onPaymentSubmit(paymentData: { paymentMethod: 'cash' | 'card' }) {
   if (!deliveryData.value) return
 
-  await orderStore.submitOrder({
+  await submitOrder({
     type: 'delivery',
     paymentMethod: paymentData.paymentMethod,
     customerName: deliveryData.value.customerName,

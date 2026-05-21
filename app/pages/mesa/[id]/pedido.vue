@@ -175,6 +175,7 @@ definePageMeta({ layout: 'room' })
 const route = useRoute()
 const tableId = Number(route.params.id)
 const orderStore = useMyOrderStore()
+const { submitOrder } = useOrders()
 
 useHead({
   title: computed(() =>
@@ -218,7 +219,7 @@ const total = computed(() =>
 )
 
 async function onPaymentSubmit(paymentData: { paymentMethod: 'cash' | 'card' }) {
-  await orderStore.submitOrder({
+  await submitOrder({
     type: 'room',
     paymentMethod: paymentData.paymentMethod,
     tableId: orderStore.activeTable?.id || tableId

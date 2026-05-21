@@ -14,10 +14,10 @@ export const cardSchema = z.object({
 
 // Schema de datos de delivery
 export const deliveryDataSchema = z.object({
-  customerName: z.string().min(3, 'El nombre es obligatorio'),
-  address: z.string().min(5, 'La dirección es obligatoria'),
+  customerName: z.string('El nombre es obligatorio').min(3, 'El nombre es obligatorio'),
+  address: z.string('La dirección es obligatoria').min(5, 'La dirección es obligatoria'),
   phone: z
-    .string()
+    .string('El teléfono es obligatorio')
     .min(9, 'El teléfono debe tener al menos 9 dígitos')
     .regex(/^\d+$/, 'Solo números')
 })

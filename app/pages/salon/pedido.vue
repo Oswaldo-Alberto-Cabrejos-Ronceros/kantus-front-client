@@ -170,6 +170,7 @@ useHead({ title: 'Kantus — Confirmar Pedido Salón' })
 const orderStore = useMyOrderStore()
 const { useFindAllProducts } = useProducts()
 const { data: products } = useFindAllProducts()
+const { submitOrder } = useOrders()
 
 const currentStep = ref(0)
 
@@ -203,7 +204,7 @@ const total = computed(() =>
 )
 
 async function onPaymentSubmit(paymentData: { paymentMethod: 'cash' | 'card' }) {
-  await orderStore.submitOrder({
+  await submitOrder({
     type: 'room',
     paymentMethod: paymentData.paymentMethod,
     tableId: orderStore.activeTable?.id
