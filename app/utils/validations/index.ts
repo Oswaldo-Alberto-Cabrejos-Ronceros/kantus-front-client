@@ -2,14 +2,14 @@ import { z } from 'zod'
 
 // Schema de pago (tarjeta)
 export const cardSchema = z.object({
-  fullName: z.string().min(3, 'El nombre es obligatorio'),
+  fullName: z.string('El nombre es obligatorio').min(3, 'El nombre es obligatorio'),
   cardNumber: z
-    .string()
+    .string('El número de tarjeta es obligatorio')
     .min(16, 'El número de tarjeta debe tener 16 dígitos')
     .max(16, 'El número de tarjeta debe tener 16 dígitos')
     .regex(/^\d+$/, 'Solo números'),
-  cvv: z.string().min(3, 'CVV inválido').max(4, 'CVV inválido').regex(/^\d+$/, 'Solo números'),
-  expiryDate: z.string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, 'Formato MM/AA')
+  cvv: z.string('El CVV es obligatorio').min(3, 'CVV inválido').max(4, 'CVV inválido').regex(/^\d+$/, 'Solo números'),
+  expiryDate: z.string('La fecha de vencimiento es obligatoria').regex(/^(0[1-9]|1[0-2])\/\d{2}$/, 'Formato MM/AA')
 })
 
 // Schema de datos de delivery

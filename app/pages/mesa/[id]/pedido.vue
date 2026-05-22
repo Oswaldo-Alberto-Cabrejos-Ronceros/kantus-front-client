@@ -165,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { StepperItem } from '@nuxt/ui'
 import { useMyOrderStore } from '~/stores/order'
 import type { Product } from '~/utils/types'
@@ -176,6 +176,16 @@ const route = useRoute()
 const tableId = Number(route.params.id)
 const orderStore = useMyOrderStore()
 const { submitOrder } = useOrders()
+
+// Fetch de la mesa si no está cargada (soporte para refresh)
+const { useFindOneTable } = useTables()
+const { data: table } = useFindOneTable(tableId)
+
+watch(table, (newTable) => {
+  if (newTable) {
+    orderStore.setTable(newTable)
+  }
+}, { immediate: true })
 
 useHead({
   title: computed(() =>

@@ -29,8 +29,11 @@ useHead({
 const { useFindAllCategories } = useCategories()
 const { useFindAllProducts } = useProducts()
 
-const { data: categories } = useFindAllCategories()
-const { data: products } = useFindAllProducts()
+const dataCategories = useFindAllCategories()
+const dataProducts = useFindAllProducts()
+
+const categories = computed(() => dataCategories.data.value)
+const products = computed(() => dataProducts.data.value)
 
 const tabItems = computed(() => {
   return categories.value?.map(category => ({
