@@ -21,10 +21,10 @@
         Tu orden ha sido recibida y está siendo procesada
       </p>
 
-      <!-- Número de orden -->
+      <!-- Código de orden -->
       <div class="order-id-card">
-        <span class="order-id-label">Número de orden</span>
-        <span class="order-id-value">{{ order.id }}</span>
+        <span class="order-id-label">Código de pedido</span>
+        <span class="order-id-value">{{ order.code ?? order.id }}</span>
       </div>
 
       <!-- Detalles de la orden -->
@@ -89,6 +89,30 @@
         <span v-else>Tu pedido estará listo en: <strong>15-20 min</strong></span>
       </div>
 
+      <!-- Aviso de pedido guardado -->
+      <div class="saved-notice">
+        <UIcon name="i-lucide-bookmark-check" class="saved-icon" />
+        <p>Tu código ha sido guardado en este dispositivo por 24 horas. Puedes volver a esta página cuando quieras.</p>
+      </div>
+
+      <!-- Boleta (disponible una vez procesado el pago) -->
+      <div v-if="order.code" class="boleta-section">
+        <div class="boleta-info">
+          <UIcon name="i-lucide-receipt" class="boleta-icon" />
+          <p>Tu boleta estará disponible una vez procesado el pago.</p>
+        </div>
+        <UButton
+          size="sm"
+          variant="outline"
+          color="primary"
+          icon="i-lucide-file-text"
+          class="w-full"
+          label="Ver boleta"
+          :href="`${apiBaseUrl}/api/comprobantes/by-order/${order.code}/view`"
+          target="_blank"
+        />
+      </div>
+
       <!-- Acciones -->
       <div class="confirmation-actions">
         <UButton
@@ -99,7 +123,7 @@
           class="w-full"
           label="Hacer otro pedido"
           icon="i-lucide-plus-circle"
-          @click="$emit('new-order')"
+          @click="onNewOrder"
         />
       </div>
     </div>
@@ -114,9 +138,19 @@ defineProps<{
   backTo?: string
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'new-order'): void
 }>()
+
+const config = useRuntimeConfig()
+const apiBaseUrl = config.public.apiBaseUrl as string
+
+const store = useMyOrderStore()
+
+function onNewOrder() {
+  store.clearSavedOrder()
+  emit('new-order')
+}
 </script>
 
 <style scoped>
@@ -329,6 +363,56 @@ defineEmits<{
 
 .eta-banner strong {
   color: #d97706;
+}
+
+/* Saved notice */
+.saved-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 0.625rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+  line-height: 1.5;
+  text-align: left;
+  margin-bottom: 0.25rem;
+}
+
+.saved-icon {
+  color: #10b981;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+/* Boleta */
+.boleta-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.boleta-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.75rem 1rem;
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  border-radius: 0.625rem;
+  font-size: 0.8rem;
+  color: #6b7280;
+  line-height: 1.5;
+  text-align: left;
+}
+
+.boleta-icon {
+  color: #d97706;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
 }
 
 /* Actions */

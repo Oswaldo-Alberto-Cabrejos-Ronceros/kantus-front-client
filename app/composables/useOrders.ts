@@ -54,6 +54,7 @@ export function useOrders() {
 
       store.lastOrder = order
       store.orderStatus = 'success'
+      store.persistLastOrder() // Guarda en localStorage para recuperar si el cliente navega
 
       // Limpiar carrito correspondiente
       if (type === 'delivery') {

@@ -33,5 +33,10 @@ useSeoMeta({
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+    <!-- Banner global: muestra el pedido activo en cualquier página -->
+    <!-- ClientOnly evita el mismatch SSR/hidratación que borraba el banner tras recargar -->
+    <ClientOnly>
+      <SharedActiveOrderBanner />
+    </ClientOnly>
   </UApp>
 </template>

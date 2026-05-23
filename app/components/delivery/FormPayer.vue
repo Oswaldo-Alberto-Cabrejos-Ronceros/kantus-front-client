@@ -110,7 +110,7 @@
       >
         <div class="cash-notice">
           <UIcon name="i-lucide-info" />
-          <p>El cobro se realizará al momento de la entrega. Por favor ten el monto exacto disponible.</p>
+          <p>El repartidor cobrará al llegar y te emitirá una boleta. Ten el monto disponible.</p>
         </div>
         <UButton
           size="lg"

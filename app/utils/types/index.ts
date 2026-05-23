@@ -49,6 +49,8 @@ export interface CreateOrderRequest {
 
 export interface Order {
   id: string
+  /** Código legible del pedido (ej. ORD-XXXXXXXX) — usar para boleta URL */
+  code?: string
   type: OrderType
   tableId?: number
   tableNumber?: number

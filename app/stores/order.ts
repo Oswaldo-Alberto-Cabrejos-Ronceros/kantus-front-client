@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
-import type { ProductCard, Table, Order, CreateOrderRequest, OrderType } from '~/utils/types'
+import type { ProductCard, Table, Order, OrderType } from '~/utils/types'
+
+const STORAGE_KEY = 'kantus_last_order'
 
 export type OrderStoreStatus = 'idle' | 'loading' | 'success' | 'error'
 
@@ -87,6 +89,45 @@ export const useMyOrderStore = defineStore('myOrderStore', {
       this.orderStatus = 'idle'
       this.orderError = null
       this.lastOrder = null
+    },
+
+    /** Persiste lastOrder en localStorage (llamar después de crear un pedido exitoso) */
+    persistLastOrder() {
+      if (import.meta.client && this.lastOrder) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            order: this.lastOrder,
+            savedAt: new Date().toISOString()
+          }))
+        } catch {}
+      }
+    },
+
+    /** Hidrata lastOrder desde localStorage (llamar en el plugin de cliente) */
+    hydrateFromStorage() {
+      if (!import.meta.client) return
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY)
+        if (!raw) return
+        const parsed = JSON.parse(raw) as { order: Order; savedAt: string }
+        // Solo restaurar pedidos de las últimas 24 horas
+        const ageHours = (Date.now() - new Date(parsed.savedAt).getTime()) / 3_600_000
+        if (ageHours < 24 && parsed.order) {
+          this.lastOrder = parsed.order
+        } else {
+          localStorage.removeItem(STORAGE_KEY)
+        }
+      } catch {
+        localStorage.removeItem(STORAGE_KEY)
+      }
+    },
+
+    /** Borra el pedido guardado (cuando el cliente decide empezar otro) */
+    clearSavedOrder() {
+      this.lastOrder = null
+      if (import.meta.client) {
+        try { localStorage.removeItem(STORAGE_KEY) } catch {}
+      }
     }
   }
 })

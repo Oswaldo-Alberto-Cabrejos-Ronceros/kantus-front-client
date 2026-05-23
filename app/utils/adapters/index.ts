@@ -112,6 +112,7 @@ export function toOrderUI(api: OrderResponse): Order {
 
   return {
     id: String(api.id ?? ''),
+    code: api.code ?? undefined,
     type: ORDER_TYPE_MAP[api.type ?? ''] ?? 'delivery',
     tableId: api.tableId ?? undefined,
     customerName: api.customerName ?? undefined,
