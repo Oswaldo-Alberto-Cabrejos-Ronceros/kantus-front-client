@@ -2,8 +2,16 @@ import { defineStore } from 'pinia'
 import type { ProductCard, Table, Order, OrderType } from '~/utils/types'
 
 const STORAGE_KEY = 'kantus_last_order'
+const ORDERS_KEY = 'kantus_orders'
 
 export type OrderStoreStatus = 'idle' | 'loading' | 'success' | 'error'
+
+/** Referencia ligera a un pedido para poder seguirlo después (sin login) */
+export interface TrackedOrder {
+  code: string
+  type: OrderType
+  savedAt: string
+}
 
 export const useMyOrderStore = defineStore('myOrderStore', {
   state: () => ({
@@ -16,7 +24,9 @@ export const useMyOrderStore = defineStore('myOrderStore', {
     // Estado del submit
     orderStatus: 'idle' as OrderStoreStatus,
     orderError: null as string | null,
-    lastOrder: null as Order | null
+    lastOrder: null as Order | null,
+    // Pedidos rastreados en este dispositivo (para "Mis pedidos")
+    trackedOrders: [] as TrackedOrder[]
   }),
 
   getters: {
@@ -127,6 +137,34 @@ export const useMyOrderStore = defineStore('myOrderStore', {
       this.lastOrder = null
       if (import.meta.client) {
         try { localStorage.removeItem(STORAGE_KEY) } catch {}
+      }
+    },
+
+    /** Agrega un pedido a la lista rastreada de este dispositivo (no reemplaza los anteriores) */
+    addTrackedOrder(order: Order) {
+      if (!order.code) return
+      const ref: TrackedOrder = { code: order.code, type: order.type, savedAt: new Date().toISOString() }
+      this.trackedOrders = [ref, ...this.trackedOrders.filter(o => o.code !== ref.code)]
+      this.persistTrackedOrders()
+    },
+
+    persistTrackedOrders() {
+      if (!import.meta.client) return
+      try { localStorage.setItem(ORDERS_KEY, JSON.stringify(this.trackedOrders)) } catch {}
+    },
+
+    /** Carga los pedidos rastreados desde localStorage, descartando los de más de 48h */
+    loadTrackedOrders() {
+      if (!import.meta.client) return
+      try {
+        const raw = localStorage.getItem(ORDERS_KEY)
+        if (!raw) return
+        const parsed = JSON.parse(raw) as TrackedOrder[]
+        const fresh = parsed.filter(o => (Date.now() - new Date(o.savedAt).getTime()) / 3_600_000 < 48)
+        this.trackedOrders = fresh
+        if (fresh.length !== parsed.length) this.persistTrackedOrders()
+      } catch {
+        try { localStorage.removeItem(ORDERS_KEY) } catch {}
       }
     }
   }

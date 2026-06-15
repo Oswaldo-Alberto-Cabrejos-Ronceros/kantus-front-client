@@ -25,6 +25,14 @@ const orderStore = useMyOrderStore()
 
     <template #right>
       <UColorModeButton />
+      <UButton
+        to="/mis-pedidos"
+        icon="i-lucide-receipt-text"
+        size="md"
+        color="neutral"
+        variant="ghost"
+        aria-label="Mis pedidos"
+      />
       <NuxtLink
         to="/pedido"
         class="relative"

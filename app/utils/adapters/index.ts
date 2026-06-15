@@ -10,6 +10,7 @@ import type {
 import type {
   Category,
   Product,
+  Promotion,
   Table,
   Order,
   OrderItem,
@@ -37,7 +38,11 @@ export function toProductUI(api: ProductResponse): Product {
     imageUrl: api.imageUrl ?? '',
     name: api.name ?? '',
     description: api.description ?? '',
-    price: api.price ?? 0
+    price: api.price ?? 0,
+    status: api.status ?? true,
+    // `promotion` y `available` aún no están en la spec generada (openapi) — se leen directo de la respuesta
+    promotion: (api as { promotion?: Promotion }).promotion,
+    available: (api as { available?: boolean }).available ?? true
   }
 }
 

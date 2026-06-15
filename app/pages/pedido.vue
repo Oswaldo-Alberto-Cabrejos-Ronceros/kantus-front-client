@@ -165,7 +165,7 @@
 import { computed, ref } from 'vue'
 import type { StepperItem } from '@nuxt/ui'
 import { useMyOrderStore } from '~/stores/order'
-import type { Product } from '~/utils/types'
+import { getEffectivePrice } from '~/utils/pricing'
 import type { DeliveryDataRequest } from '~/utils/validations'
 
 definePageMeta({ layout: 'default' })
@@ -201,10 +201,12 @@ const orderItems = computed(() => {
   if (!products.value) return []
   return orderStore.deliveryOrder.map((orderItem) => {
     const product = products.value!.find(p => p.id === orderItem.id)
+    const unitPrice = getEffectivePrice(product?.price ?? 0, product?.promotion)
     return {
       ...product,
       quantity: orderItem.quantity,
-      subtotal: (product?.price || 0) * orderItem.quantity
+      price: unitPrice,
+      subtotal: unitPrice * orderItem.quantity
     }
   }).filter(item => item.id !== undefined)
 })

@@ -3,6 +3,12 @@ export interface Category {
   name: string
 }
 
+export interface Promotion {
+  tipo: 'porcentaje' | 'precio'
+  valor: number
+  status: boolean
+}
+
 export interface Product {
   id: number
   categoryId: string | number
@@ -10,6 +16,10 @@ export interface Product {
   name: string
   description: string
   price: number
+  status?: boolean
+  promotion?: Promotion
+  /** false cuando algún ingrediente está bajo el stock mínimo — la carta lo oculta */
+  available?: boolean
 }
 
 export interface ProductCard {

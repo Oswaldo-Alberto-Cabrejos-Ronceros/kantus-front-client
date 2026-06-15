@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
 import { useMyOrderStore } from '~/stores/order'
-import type { Category, Product, Table } from '~/utils/types'
+import { getEffectivePrice } from '~/utils/pricing'
 
 definePageMeta({ layout: 'room' })
 
@@ -35,22 +35,31 @@ const dataProducts = useFindAllProducts()
 const categories = computed(() => dataCategories.data.value)
 const products = computed(() => dataProducts.data.value)
 
+const productsLoading = dataProducts.isPending
+
+const offerProducts = computed(() =>
+  products.value?.filter(p => p.status !== false && p.promotion?.status) || []
+)
+
 const tabItems = computed(() => {
-  return categories.value?.map(category => ({
+  const base = categories.value?.map(category => ({
     label: category.name,
     slot: `category-${category.id}`
   })) || []
+  return offerProducts.value.length
+    ? [{ label: '🔥 Ofertas', slot: 'ofertas' }, ...base]
+    : base
 })
 
 const getProductsByCategory = (categoryId: number | string) => {
-  return products.value?.filter(p => p.categoryId === categoryId) || []
+  return products.value?.filter(p => p.categoryId === categoryId && p.status !== false) || []
 }
 
 const roomTotal = computed(() => {
   if (!products.value) return 0
   return orderStore.roomOrder.reduce((sum, item) => {
     const product = products.value!.find(p => p.id === item.id)
-    return sum + (product?.price || 0) * item.quantity
+    return sum + getEffectivePrice(product?.price ?? 0, product?.promotion) * item.quantity
   }, 0)
 })
 
@@ -141,16 +150,39 @@ const tableStatusClass: Record<string, string> = {
           </p>
         </div>
 
+        <!-- Skeleton de carga -->
+        <div v-if="productsLoading" class="products-grid">
+          <USkeleton v-for="n in 6" :key="n" class="h-72 w-full rounded-xl" />
+        </div>
+
         <UTabs
+          v-else
           :items="tabItems"
           class="w-full"
+          :ui="{ list: 'sticky top-0 z-20 bg-default/95 backdrop-blur' }"
         >
+          <template v-if="offerProducts.length" #ofertas>
+            <div class="products-grid">
+              <ProductCard
+                v-for="product in offerProducts"
+                :id="product.id"
+                :key="product.id"
+                :name="product.name"
+                :description="product.description"
+                :price="product.price"
+                :promotion="product.promotion"
+                :image-url="product.imageUrl"
+                :quantity="orderStore.getRoomQuantity(product.id)"
+                @update:quantity="orderStore.updateRoomQuantity(product as any, $event)"
+              />
+            </div>
+          </template>
           <template
             v-for="category in categories"
             :key="category.id"
             #[`category-${category.id}`]
           >
-            <div class="products-grid">
+            <div v-if="getProductsByCategory(category.id).length" class="products-grid">
               <ProductCard
                 v-for="product in getProductsByCategory(category.id)"
                 :id="product.id"
@@ -158,11 +190,15 @@ const tableStatusClass: Record<string, string> = {
                 :name="product.name"
                 :description="product.description"
                 :price="product.price"
+                :promotion="product.promotion"
                 :image-url="product.imageUrl"
                 :quantity="orderStore.getRoomQuantity(product.id)"
                 @update:quantity="orderStore.updateRoomQuantity(product as any, $event)"
               />
             </div>
+            <p v-else class="py-10 text-center text-sm text-gray-400">
+              No hay productos disponibles en esta categoría.
+            </p>
           </template>
         </UTabs>
       </div>
@@ -235,7 +271,7 @@ const tableStatusClass: Record<string, string> = {
 .mesa-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+  background: linear-gradient(135deg, #1c1917 0%, #451a03 50%, #7c2d12 100%);
   z-index: 0;
 }
 
@@ -261,7 +297,7 @@ const tableStatusClass: Record<string, string> = {
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 1rem;
-  background: rgba(16, 185, 129, 0.85);
+  background: rgba(245, 158, 11, 0.9);
   backdrop-filter: blur(8px);
   border-radius: 9999px;
   color: white;

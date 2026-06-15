@@ -10,7 +10,9 @@ export function useProducts() {
       queryFn: async (): Promise<Product[]> => {
         const { data } = await getAllProducts()
         if (!data) return []
-        return data.map(toProductUI)
+        // La carta del cliente oculta productos sin stock suficiente
+        // (algún ingrediente por debajo del stock mínimo)
+        return data.map(toProductUI).filter(p => p.available !== false)
       }
     })
   }
